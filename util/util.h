@@ -136,7 +136,9 @@
 #define NIL(type)		((type *) 0)
 
 /* #define USE_MM */		/* choose default memory allocator */
-
+#ifdef __APPLE__
+#define USE_MM
+#endif
 /**
  * @def ALLOC
  * @brief Wrapper for either malloc or MMalloc.

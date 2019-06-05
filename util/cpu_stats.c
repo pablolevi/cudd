@@ -73,6 +73,7 @@
 #endif
 
 #ifdef BSD
+#if !defined(__APPLE__)
 #if defined(_IBMR2)
 #define etext _etext
 #define edata _edata
@@ -80,7 +81,9 @@
 #endif
 
 extern int end, etext, edata;
-
+#else
+#include <mach-o/getsect.h>
+#endif
 #endif
 
 #ifdef _WIN32
@@ -114,10 +117,17 @@ util_print_cpu_stats(FILE *fp)
 
 #ifdef BSD
     /* Get the virtual memory sizes */
+#if !defined(__APPLE__)
     vm_text = (long) (((long) (&etext)) / 1024.0 + 0.5);
     vm_init_data = (long) (((long) (&edata) - (long) (&etext)) / 1024.0 + 0.5);
     vm_uninit_data = (long) (((long) (&end) - (long) (&edata)) / 1024.0 + 0.5);
     vm_sbrk_data = (long) (((long) sbrk(0) - (long) (&end)) / 1024.0 + 0.5);
+#else
+    vm_text = (long) (((long) (get_etext())) / 1024.0 + 0.5);
+    vm_init_data = (long) (((long) (get_edata()) - (long) (get_etext())) / 1024.0 + 0.5);
+    vm_uninit_data = (long) (((long) (get_end()) - (long) (get_edata())) / 1024.0 + 0.5);
+    vm_sbrk_data = (long) (((long) sbrk(0) - (long) (get_end())) / 1024.0 + 0.5);
+#endif
 #endif
 
     /* Get virtual memory limits */
